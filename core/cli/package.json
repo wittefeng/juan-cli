@@ -10,6 +10,9 @@
   "homepage": "",
   "license": "ISC",
   "main": "lib/cli.js",
+  "bin": {
+    "juan-cli": "bin/index.js"
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -23,5 +26,5 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
-  "gitHead": "19a2ef55e7ca11607ccf3bb6d7cdf47318519fee"
+  "gitHead": "e8902611a42a8730c26f590f0b50cb01cc39954e"
 }
