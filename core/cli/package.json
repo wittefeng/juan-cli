@@ -1,6 +1,6 @@
 {
   "name": "@juan-cli/cli",
-  "version": "0.0.3-alpha.0",
+  "version": "0.0.0",
   "description": "juan-cli cli",
   "keywords": [
     "juan",
@@ -26,5 +26,5 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
-  "gitHead": "e8902611a42a8730c26f590f0b50cb01cc39954e"
+  "gitHead": "87be4dd4b56017f3b4e7e3b3f9e1b661da2385e5"
 }
