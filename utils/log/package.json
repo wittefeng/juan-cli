@@ -8,7 +8,7 @@
   "author": "WitteWey <549014963@qq.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "lib/log.js",
+  "main": "lib/index.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -22,5 +22,8 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
-  "gitHead": "3e4de0f0e9d0cc71429380e6d9f8721b9df37b7c"
+  "gitHead": "3e4de0f0e9d0cc71429380e6d9f8721b9df37b7c",
+  "dependencies": {
+    "npmlog": "^6.0.1"
+  }
 }
