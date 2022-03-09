@@ -16,12 +16,16 @@ const constant = require('./const')
 // any -> .js 其他文件以js引擎来解析
 const pkg = require('../package.json')
 
+let args
+
 function cli() {
   try {
     checkPkgVersion()
     checkNodeVersion()
     checkRoot()
     checkUserHome()
+    checkInputArgs()
+    log.verbose('debug', 'test debug log')
   } catch (error) {
     log.error(error.message)
   }
@@ -57,4 +61,21 @@ function checkUserHome() {
   if (!userHome || !pathExists(userHome)) {
     throw new Error(colors.red('当前登录用户主目录不存在！'))
   }
+}
+
+// 5. 检查入参
+function checkInputArgs() {
+  args = require('minimist')(process.argv.slice(2))
+
+  checkArgs()
+}
+
+// 检查参数
+function checkArgs(params) {
+  if (args.debug) {
+    process.env.LOG_LEVEL = 'verbose'
+  } else {
+    process.env.LOG_LEVEL = 'info'
+  }
+  log.level = process.env.LOG_LEVEL
 }
