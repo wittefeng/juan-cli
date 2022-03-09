@@ -9,7 +9,7 @@
   "author": "WitteWey <549014963@qq.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "lib/cli.js",
+  "main": "",
   "bin": {
     "juan-cli": "bin/index.js"
   },
@@ -26,5 +26,15 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
-  "gitHead": "3e4de0f0e9d0cc71429380e6d9f8721b9df37b7c"
+  "gitHead": "3e4de0f0e9d0cc71429380e6d9f8721b9df37b7c",
+  "dependencies": {
+    "@juan-cli/log": "^0.0.1-alpha.0",
+    "colors": "^1.4.0",
+    "import-local": "^3.1.0",
+    "npmlog": "^6.0.1",
+    "path-exists": "4.0.0",
+    "root-check": "1.0.0",
+    "semver": "^7.3.5",
+    "user-home": "^3.0.0"
+  }
 }
