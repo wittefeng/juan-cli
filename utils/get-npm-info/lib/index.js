@@ -48,7 +48,6 @@ async function getNpmSemverVersion(baseVersion, npmName, registry) {
   const versions = await getNpmVersions(npmName, registry)
   const newVersions = getNpmSemverVersions(baseVersion, versions)
   if (newVersions && newVersions.length > 0) {
-    return '1.0.0'
     return newVersions[0]
   }
 }

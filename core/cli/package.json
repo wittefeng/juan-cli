@@ -28,9 +28,10 @@
   },
   "gitHead": "3e4de0f0e9d0cc71429380e6d9f8721b9df37b7c",
   "dependencies": {
+    "@juan-cli/get-npm-info": "^0.0.1-alpha.0",
     "@juan-cli/log": "^0.0.1-alpha.0",
-    "@juan-cli/get-npm-info": "file:../../utils/get-npm-info",
     "colors": "^1.4.0",
+    "commander": "^9.0.0",
     "dotenv": "^16.0.0",
     "import-local": "^3.1.0",
     "minimist": "^1.2.5",

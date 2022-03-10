@@ -4,10 +4,11 @@ module.exports = cli
 
 const path = require('path')
 const semver = require('semver')
-const log = require('@juan-cli/log')
 const colors = require('colors/safe')
 const userHome = require('user-home')
 const pathExists = require('path-exists').sync
+const commander = require('commander')
+const log = require('@juan-cli/log')
 
 const { LOWEST_NODE_VERSION, DEFAULT_CLI_HOME } = require('./const')
 // require: .js|.json|.node
@@ -19,15 +20,18 @@ const pkg = require('../package.json')
 
 let args
 
+const program = new commander.Command()
+
 async function cli() {
   try {
     checkPkgVersion()
     checkNodeVersion()
     checkRoot()
     checkUserHome()
-    checkInputArgs()
+    // checkInputArgs()
     checkEnv()
     await checkGlobalUpdate()
+    registerCommand()
   } catch (error) {
     log.error(error.message)
   }
@@ -35,6 +39,7 @@ async function cli() {
 
 // 1. 检查版本号
 function checkPkgVersion() {
+  console.log()
   log.info('cli version', pkg.version)
 }
 
@@ -55,7 +60,6 @@ function checkNodeVersion() {
 function checkRoot() {
   const rootCheck = require('root-check')
   rootCheck()
-  console.log(process.geteuid())
 }
 
 // 4. 检查用户目录
@@ -68,12 +72,11 @@ function checkUserHome() {
 // 5. 检查入参
 function checkInputArgs() {
   args = require('minimist')(process.argv.slice(2))
-
   checkArgs()
 }
 
 // 检查参数
-function checkArgs(params) {
+function checkArgs() {
   if (args.debug) {
     process.env.LOG_LEVEL = 'verbose'
   } else {
@@ -143,4 +146,34 @@ async function checkGlobalUpdate() {
   }
   // 3. 提取所有版本号，比对哪些版本号是大于当前版本号
   // 4. 获取最新的版本号，提示用户更新到该版本号
+}
+
+// 注册 command
+function registerCommand() {
+  program
+    .name(Object.keys(pkg.bin)[0])
+    .usage('<command> [options]')
+    .version(pkg.version)
+    .option('-d, --debug', '调试模式')
+
+  // 开启 debug 模式
+  program.on('option:debug', function () {
+    process.env.LOG_LEVEL = 'verbose'
+    log.level = process.env.LOG_LEVEL
+  })
+
+  // 监听未知命令
+  program.on('command:*', function (obj) {
+    const availableCommands = program.commands.map((cmd) => cmd.name())
+    console.log(colors.red('未知的命令：' + obj[0]))
+    if (availableCommands.length > 0) {
+      console.log(colors.red('可用命令：' + avaliableCommands.join(',')))
+    }
+  })
+
+  program.parse(process.argv)
+  if (program.args && program.args.length < 1) {
+    program.outputHelp()
+    console.log()
+  }
 }
