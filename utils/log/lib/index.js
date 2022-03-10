@@ -11,5 +11,6 @@ log.headingStyle = { fg: 'white', bg: 'black' }
 
 // 添加自定义命令
 log.addLevel('success', 2000, { fg: 'green', bold: true })
+log.addLevel('warn', 2000, { fg: 'green', bold: true })
 
 module.exports = log
