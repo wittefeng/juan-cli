@@ -19,19 +19,11 @@ const { LOWEST_NODE_VERSION, DEFAULT_CLI_HOME } = require('./const')
 // any -> .js 其他文件以js引擎来解析
 const pkg = require('../package.json')
 
-let args
-
 const program = new commander.Command()
 
 async function cli() {
   try {
-    checkPkgVersion()
-    checkNodeVersion()
-    checkRoot()
-    checkUserHome()
-    // checkInputArgs()
-    checkEnv()
-    await checkGlobalUpdate()
+    await prepare()
     registerCommand()
   } catch (error) {
     log.error(error.message)
@@ -70,22 +62,6 @@ function checkUserHome() {
   }
 }
 
-// 5. 检查入参
-function checkInputArgs() {
-  args = require('minimist')(process.argv.slice(2))
-  checkArgs()
-}
-
-// 检查参数
-function checkArgs() {
-  if (args.debug) {
-    process.env.LOG_LEVEL = 'verbose'
-  } else {
-    process.env.LOG_LEVEL = 'info'
-  }
-  log.level = process.env.LOG_LEVEL
-}
-
 // 6. 检查环境变量
 function checkEnv() {
   const dotenvPath = path.resolve(userHome, '.env')
@@ -95,7 +71,6 @@ function checkEnv() {
     })
   }
   createCliConfig()
-  log.verbose('环境变量', process.env.CLI_HOME_PATH)
 }
 
 // 创建默认环境变量
@@ -155,7 +130,8 @@ function registerCommand() {
     .name(Object.keys(pkg.bin)[0])
     .usage('<command> [options]')
     .version(pkg.version)
-    .option('-d, --debug', '调试模式')
+    .option('-d, --debug', '是否开启调试模式', false)
+    .option('-tp, --targetPath <targetPath>', '是否制定本地调试文件路径', '')
 
   // 开启 debug 模式
   program.on('option:debug', function () {
@@ -168,6 +144,11 @@ function registerCommand() {
     .command('init [projectName]')
     .option('-f, --force', '是否强制覆盖当前目录下的内容')
     .action(init)
+
+  // 监听 targetpath 并将其放入env
+  program.on('option:targetPath', function (path) {
+    process.env.CLI_TARGET_PATH = path
+  })
 
   // 监听未知命令
   program.on('command:*', function (obj) {
@@ -183,4 +164,13 @@ function registerCommand() {
     program.outputHelp()
     console.log()
   }
+}
+
+async function prepare() {
+  checkPkgVersion()
+  checkNodeVersion()
+  checkRoot()
+  checkUserHome()
+  checkEnv()
+  await checkGlobalUpdate()
 }
