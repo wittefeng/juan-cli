@@ -1,9 +1,9 @@
 {
-  "name": "@juan-cli/exec",
+  "name": "@juan-cli/utils",
   "version": "0.0.1-alpha.0",
-  "description": "juan-cli execute package",
+  "description": "web utils",
   "keywords": [
-    "exec"
+    "utils"
   ],
   "author": "wittefeng <wittefeng@gmail.com>",
   "homepage": "https://github.com/wittefeng/juan-cli#readme",
@@ -28,9 +28,5 @@
   },
   "bugs": {
     "url": "https://github.com/wittefeng/juan-cli/issues"
-  },
-  "dependencies": {
-    "@juan-cli/log": "^0.0.1-alpha.0",
-    "@juan-cli/package": "^0.0.1-alpha.0"
   }
 }
