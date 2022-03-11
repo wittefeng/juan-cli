@@ -1,11 +1,11 @@
-# `@juan-cli/log`
+# `@juan-cli/init`
 
 > TODO: description
 
 ## Usage
 
 ```
-const log = require('@juan-cli/log');
+const init = require('@juan-cli/init');
 
 // TODO: DEMONSTRATE API
 ```

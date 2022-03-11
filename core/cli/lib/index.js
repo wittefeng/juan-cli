@@ -9,6 +9,7 @@ const userHome = require('user-home')
 const pathExists = require('path-exists').sync
 const commander = require('commander')
 const log = require('@juan-cli/log')
+const init = require('@juan-cli/init')
 
 const { LOWEST_NODE_VERSION, DEFAULT_CLI_HOME } = require('./const')
 // require: .js|.json|.node
@@ -161,6 +162,12 @@ function registerCommand() {
     process.env.LOG_LEVEL = 'verbose'
     log.level = process.env.LOG_LEVEL
   })
+
+  // 注册命令
+  program
+    .command('init [projectName]')
+    .option('-f, --force', '是否强制覆盖当前目录下的内容')
+    .action(init)
 
   // 监听未知命令
   program.on('command:*', function (obj) {
