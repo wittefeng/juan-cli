@@ -10,6 +10,7 @@ const pathExists = require('path-exists').sync
 const commander = require('commander')
 const log = require('@juan-cli/log')
 const init = require('@juan-cli/init')
+const exec = require('@juan-cli/exec')
 
 const { LOWEST_NODE_VERSION, DEFAULT_CLI_HOME } = require('./const')
 // require: .js|.json|.node
@@ -143,7 +144,7 @@ function registerCommand() {
   program
     .command('init [projectName]')
     .option('-f, --force', '是否强制覆盖当前目录下的内容')
-    .action(init)
+    .action(exec)
 
   // 监听 targetpath 并将其放入env
   program.on('option:targetPath', function (path) {
