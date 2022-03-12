@@ -2,8 +2,10 @@
 
 const path = require('path')
 const pkgdir = require('pkg-dir').sync
+const npminstall = require('npminstall')
 const { isObject } = require('@juan-cli/utils')
 const formatPath = require('@juan-cli/format-path')
+const { getDefaultRegistry } = require('@juan-cli/get-npm-info')
 
 class Package {
   constructor(options) {
@@ -15,6 +17,8 @@ class Package {
     }
     // package 的目标路径
     this.targetPath = options.targetPath
+    // package 的缓存路径
+    this.storePath = options.storePath
     //   package 的name
     this.packageName = options.packageName
     //   package 的version
@@ -25,7 +29,19 @@ class Package {
   exists() {}
 
   // 安装Package
-  install() {}
+  install() {
+    npminstall({
+      root: this.targetPath,
+      storeDir: this.storePath,
+      registry: getDefaultRegistry(),
+      pkgs: [
+        {
+          name: this.packageName,
+          version: this.packageVersion
+        }
+      ]
+    })
+  }
 
   // 更新Package
   update() {}

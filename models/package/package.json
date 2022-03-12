@@ -28,7 +28,9 @@
   },
   "dependencies": {
     "@juan-cli/format-path": "^0.0.1-alpha.0",
+    "@juan-cli/get-npm-info": "^0.0.1-alpha.0",
     "@juan-cli/utils": "^0.0.1-alpha.0",
+    "npminstall": "^5.5.0",
     "pkg-dir": "5.0.0"
   }
 }

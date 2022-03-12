@@ -1,5 +1,6 @@
 'use strict'
 
+const path = require('path')
 const Package = require('@juan-cli/package')
 const log = require('@juan-cli/log')
 
@@ -7,9 +8,12 @@ const SETTING = {
   init: '@juan-cli/init'
 }
 
+const CACHE_DIR = 'dependencies'
+
 function exec() {
   let targetPath = process.env.CLI_TARGET_PATH
   const homePath = process.env.CLI_HOME_PATH
+  let storePath = ''
   log.verbose('targetPath', targetPath)
   log.verbose('homePath', homePath)
 
@@ -21,11 +25,15 @@ function exec() {
 
   if (!targetPath) {
     // 生成缓存路径
-    targetPath = ''
+    targetPath = path.resolve(homePath, CACHE_DIR)
+    storePath = path.resolve(homePath, 'node_modules')
+    log.verbose('targetPath', targetPath)
+    log.verbose('storePath', storePath)
   }
 
   const pkg = new Package({
     targetPath,
+    storePath,
     packageName,
     packageVersion
   })
