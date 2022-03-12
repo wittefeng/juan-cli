@@ -27,7 +27,7 @@ async function exec() {
   if (!targetPath) {
     // 生成缓存路径
     targetPath = path.resolve(homePath, CACHE_DIR)
-    storePath = path.resolve(homePath, 'node_modules')
+    storePath = path.resolve(targetPath, 'node_modules')
     log.verbose('targetPath', targetPath)
     log.verbose('storePath', storePath)
     pkg = new Package({
@@ -36,8 +36,9 @@ async function exec() {
       packageName,
       packageVersion
     })
-    if (pkg.exists()) {
+    if (await pkg.exists()) {
       // 更新 pkg
+      await pkg.update()
     } else {
       // 获取缓存目录 安装 pkg
       await pkg.install()
@@ -45,13 +46,12 @@ async function exec() {
   } else {
     pkg = new Package({
       targetPath,
-      storePath,
       packageName,
       packageVersion
     })
   }
-
   const rootFile = pkg.getRootFilePath()
+  console.log('rootFile', rootFile)
   if (rootFile) {
     require(rootFile).apply(null, arguments)
   }
