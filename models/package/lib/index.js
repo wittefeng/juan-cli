@@ -1,6 +1,9 @@
 'use strict'
 
+const path = require('path')
+const pkgdir = require('pkg-dir').sync
 const { isObject } = require('@juan-cli/utils')
+const formatPath = require('@juan-cli/format-path')
 
 class Package {
   constructor(options) {
@@ -10,10 +13,8 @@ class Package {
     if (!isObject(options)) {
       throw new Error('The options must be Object. from @juan-cli/package')
     }
-    // package 的路径
+    // package 的目标路径
     this.targetPath = options.targetPath
-    //   package 的存储路径
-    this.storePath = options.storePath
     //   package 的name
     this.packageName = options.packageName
     //   package 的version
@@ -30,7 +31,20 @@ class Package {
   update() {}
 
   // 获取入口文件路径
-  getRootFilePath() {}
+  getRootFilePath() {
+    // 1. 获取 package.json 所在目录 - pkg-dir
+    const dir = pkgdir(this.targetPath)
+    if (dir) {
+      // 2. 读取 package.json - require()
+      const pkgFile = require(path.resolve(dir, 'package.json'))
+      // 3. main / lib -> path
+      if (pkgFile && pkgFile.main) {
+        // 4. 路径的兼容(macOS/windows)
+        return formatPath(path.resolve(dir, pkgFile.main))
+      }
+    }
+    return null
+  }
 }
 
 module.exports = Package

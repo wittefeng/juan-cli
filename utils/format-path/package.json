@@ -1,7 +1,7 @@
 {
-  "name": "@juan-cli/package",
+  "name": "@juan-cli/format-path",
   "version": "0.0.1-alpha.0",
-  "description": "juan-cli npm modules",
+  "description": "format path",
   "author": "wittefeng <wittefeng@gmail.com>",
   "homepage": "https://github.com/wittefeng/juan-cli#readme",
   "license": "ISC",
@@ -25,10 +25,5 @@
   },
   "bugs": {
     "url": "https://github.com/wittefeng/juan-cli/issues"
-  },
-  "dependencies": {
-    "@juan-cli/format-path": "^0.0.1-alpha.0",
-    "@juan-cli/utils": "^0.0.1-alpha.0",
-    "pkg-dir": "5.0.0"
   }
 }

@@ -8,7 +8,7 @@ const SETTING = {
 }
 
 function exec() {
-  const targetPath = process.env.CLI_TARGET_PATH
+  let targetPath = process.env.CLI_TARGET_PATH
   const homePath = process.env.CLI_HOME_PATH
   log.verbose('targetPath', targetPath)
   log.verbose('homePath', homePath)
@@ -19,12 +19,16 @@ function exec() {
   const packageName = SETTING[cmdName]
   const packageVersion = 'latest'
 
+  if (!targetPath) {
+    // 生成缓存路径
+    targetPath = ''
+  }
+
   const pkg = new Package({
     targetPath,
-    storePath: '',
     packageName,
     packageVersion
   })
-  console.log('pkg', pkg)
+  console.log('pkg', pkg.getRootFilePath())
 }
 module.exports = exec
