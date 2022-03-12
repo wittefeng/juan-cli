@@ -3,6 +3,7 @@
 const axios = require('axios')
 const urlJoin = require('url-join')
 const semver = require('semver')
+const semverSort = require('semver-sort')
 
 async function getNpmInfo(npmName, registry) {
   if (!npmName) {
@@ -39,9 +40,10 @@ async function getNpmVersions(npmName, registry) {
 }
 
 function getNpmSemverVersions(baseVersion, versions) {
-  return versions
-    .filter((version) => semver.satisfies(version, `^${baseVersion}`))
-    .sort((a, b) => semver.gt(b, a))
+  console.log('er')
+  return semverSort.desc(
+    versions.filter((version) => semver.satisfies(version, `^${baseVersion}`))
+  )
 }
 
 async function getNpmSemverVersion(baseVersion, npmName, registry) {
@@ -52,9 +54,19 @@ async function getNpmSemverVersion(baseVersion, npmName, registry) {
   }
 }
 
+// 获取npm最新版本
+async function getNpmLatestVersion(npmName, registry) {
+  const version = await getNpmVersions(npmName, registry)
+  if (version) {
+    return semverSort.desc(version)[0]
+  }
+  return null
+}
+
 module.exports = {
   getNpmInfo,
   getNpmVersions,
   getNpmSemverVersion,
-  getDefaultRegistry
+  getDefaultRegistry,
+  getNpmLatestVersion
 }
