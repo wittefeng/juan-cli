@@ -30,7 +30,7 @@ class Package {
 
   // 安装Package
   install() {
-    npminstall({
+    return npminstall({
       root: this.targetPath,
       storeDir: this.storePath,
       registry: getDefaultRegistry(),
