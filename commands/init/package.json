@@ -27,6 +27,7 @@
     "url": "https://github.com/wittefeng/juan-cli/issues"
   },
   "dependencies": {
-    "@juan-cli/command": "^0.0.1-alpha.0"
+    "@juan-cli/command": "^0.0.1-alpha.0",
+    "@juan-cli/log": "^0.0.1-alpha.0"
   }
 }
