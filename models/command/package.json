@@ -1,7 +1,7 @@
 {
-  "name": "@juan-cli/init",
+  "name": "@juan-cli/command",
   "version": "0.0.1-alpha.0",
-  "description": "> TODO: description",
+  "description": "juan-cli command",
   "author": "wittefeng <wittefeng@gmail.com>",
   "homepage": "https://github.com/wittefeng/juan-cli#readme",
   "license": "ISC",
@@ -27,6 +27,8 @@
     "url": "https://github.com/wittefeng/juan-cli/issues"
   },
   "dependencies": {
-    "@juan-cli/command": "^0.0.1-alpha.0"
+    "@juan-cli/log": "^0.0.1-alpha.0",
+    "colors": "^1.4.0",
+    "semver": "^7.3.5"
   }
 }

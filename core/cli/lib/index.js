@@ -12,7 +12,7 @@ const log = require('@juan-cli/log')
 const init = require('@juan-cli/init')
 const exec = require('@juan-cli/exec')
 
-const { LOWEST_NODE_VERSION, DEFAULT_CLI_HOME } = require('./const')
+const { DEFAULT_CLI_HOME } = require('./const')
 // require: .js|.json|.node
 // .js -> module.exports/exports
 // .json -> JSON.parse
@@ -38,19 +38,6 @@ async function cli() {
 function checkPkgVersion() {
   console.log()
   log.info('cli version', pkg.version)
-}
-
-// 2. 检查node版本号
-function checkNodeVersion() {
-  // 1. 获取当前Node版本号
-  const currentVersion = process.version
-  // 2. 比对最低版本号
-  const lowestVersion = LOWEST_NODE_VERSION
-  if (!semver.gte(currentVersion, lowestVersion)) {
-    throw new Error(
-      colors.red(`juan-cli 需要安装 v${lowestVersion} 以上版本的 Node.js`)
-    )
-  }
 }
 
 // 3. 检查root
@@ -172,7 +159,6 @@ function registerCommand() {
 
 async function prepare() {
   checkPkgVersion()
-  checkNodeVersion()
   checkRoot()
   checkUserHome()
   checkEnv()
