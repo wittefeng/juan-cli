@@ -19,14 +19,19 @@ class InitCommand extends Command {
   async exec() {
     try {
       // 1. 准备阶段
-      await this.prepare()
-      // 2. 下载模版
-      // 3. 安装模版
+      const projectInfo = await this.prepare()
+      if (projectInfo) {
+        // 2. 下载模版
+        log.verbose('projectInfo', projectInfo)
+        this.downloadTemplate(projectInfo)
+        // 3. 安装模版
+      }
     } catch (error) {
       log.error(error.message)
     }
   }
 
+  // 1. 准备阶段
   async prepare() {
     const localPath = process.cwd()
     // 1. 判断当前目录是否为空
@@ -66,7 +71,7 @@ class InitCommand extends Command {
   }
 
   async getProjectInfo() {
-    const projectInfo = {}
+    let projectInfo = {}
     // 1. 选择创建项目或组件
     const { type } = await inquirer.prompt({
       type: 'list',
@@ -87,7 +92,7 @@ class InitCommand extends Command {
     log.verbose('type', type)
     if (type === TYPE_PROJECT) {
       // 2. 获取项目的基本信息
-      const o = await inquirer.prompt([
+      const project = await inquirer.prompt([
         {
           type: 'input',
           name: 'projectName',
@@ -121,11 +126,11 @@ class InitCommand extends Command {
           type: 'input',
           name: 'projectVersion',
           message: '请输入项目版本号',
-          default: '0.0.1',
+          default: '1.0.0',
           validate: function (v) {
             var done = this.async()
             setTimeout(function () {
-              if (!semver.valid(v)) {
+              if (!!!semver.valid(v)) {
                 done('请输入合法的项目名版本号')
                 return
               }
@@ -141,7 +146,10 @@ class InitCommand extends Command {
           }
         }
       ])
-      console.log(o)
+      projectInfo = {
+        type,
+        ...project
+      }
     } else if (type === TYPE_COMPONENT) {
       // 2. 获取组件的基本信息
     }
@@ -157,10 +165,18 @@ class InitCommand extends Command {
     )
     return !fl || fl.length <= 0
   }
+
+  // 2. 下载模版
+  async downloadTemplate(projectInfo) {
+    // 1. 通过项目模版API获取项目模版信息
+    // 1.1 通过egg.js搭建一套后端系统
+    // 1.2 通过npm存储项目模版
+    // 1.3 将项目模版信息存储到mongodb数据库中
+    // 1.4 通过egg.js获取mongodb中的数据并且通过API返回
+  }
 }
 
 function init(argv) {
-  // console.log('init', projectName, cmdObj.force, process.env.CLI_TARGET_PATH)
   return new InitCommand(argv)
 }
 
