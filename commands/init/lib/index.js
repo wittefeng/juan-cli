@@ -1,11 +1,17 @@
 'use strict'
 
 const fs = require('fs')
+const path = require('path')
 const inquirer = require('inquirer')
 const fsExtra = require('fs-extra')
 const semver = require('semver')
+const userHome = require('user-home')
 const log = require('@juan-cli/log')
 const Command = require('@juan-cli/command')
+const getProjectTemplate = require('./getProjectTemplate')
+const Package = require('@juan-cli/package')
+
+const { spinnerStart, sleep } = require('@juan-cli/utils')
 
 const TYPE_PROJECT = 'project'
 const TYPE_COMPONENT = 'component'
@@ -23,7 +29,8 @@ class InitCommand extends Command {
       if (projectInfo) {
         // 2. 下载模版
         log.verbose('projectInfo', projectInfo)
-        this.downloadTemplate(projectInfo)
+        this.projectInfo = projectInfo
+        await this.downloadTemplate()
         // 3. 安装模版
       }
     } catch (error) {
@@ -33,6 +40,13 @@ class InitCommand extends Command {
 
   // 1. 准备阶段
   async prepare() {
+    // 0. 提前判断项目模版是否存在
+    const template = await getProjectTemplate()
+    if (!template || template.length === 0) {
+      throw new Error('项目模版不存在')
+    }
+    this.template = template
+
     const localPath = process.cwd()
     // 1. 判断当前目录是否为空
     if (!this.isDirEmpty(localPath)) {
@@ -144,6 +158,12 @@ class InitCommand extends Command {
               return v
             }
           }
+        },
+        {
+          type: 'list',
+          name: 'projectTemplate',
+          message: '请选择项目模版',
+          choices: this.createTemplate()
         }
       ])
       projectInfo = {
@@ -166,13 +186,61 @@ class InitCommand extends Command {
     return !fl || fl.length <= 0
   }
 
+  // 返回符合inquirer格式
+  createTemplate() {
+    return this.template.map((item) => ({
+      value: item.npmName,
+      name: item.name
+    }))
+  }
+
   // 2. 下载模版
-  async downloadTemplate(projectInfo) {
+  async downloadTemplate() {
     // 1. 通过项目模版API获取项目模版信息
     // 1.1 通过egg.js搭建一套后端系统
     // 1.2 通过npm存储项目模版
     // 1.3 将项目模版信息存储到mongodb数据库中
     // 1.4 通过egg.js获取mongodb中的数据并且通过API返回
+    const { projectTemplate } = this.projectInfo
+    const { npmName, version } = this.template.find(
+      (item) => item.npmName === projectTemplate
+    )
+    const targetPath = path.resolve(userHome, '.juan-cli', 'template')
+    const storePath = path.resolve(
+      userHome,
+      '.juan-cli',
+      'template',
+      'node_modules'
+    )
+    const templateNpm = new Package({
+      targetPath,
+      storePath,
+      packageName: npmName,
+      packageVersion: version
+    })
+    if (!(await templateNpm.exists())) {
+      const spinner = spinnerStart('正在下载模版...')
+      await sleep()
+      try {
+        await templateNpm.install()
+        log.success('下载模版成功')
+      } catch (error) {
+        throw error
+      } finally {
+        spinner.stop()
+      }
+    } else {
+      const spinner = spinnerStart('正在更新模版...')
+      await sleep()
+      try {
+        await templateNpm.update()
+        log.success('更新模版成功')
+      } catch (error) {
+        throw error
+      } finally {
+        spinner.stop()
+      }
+    }
   }
 }
 

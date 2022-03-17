@@ -9,7 +9,6 @@ const userHome = require('user-home')
 const pathExists = require('path-exists').sync
 const commander = require('commander')
 const log = require('@juan-cli/log')
-const init = require('@juan-cli/init')
 const exec = require('@juan-cli/exec')
 
 const { DEFAULT_CLI_HOME } = require('./const')
