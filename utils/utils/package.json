@@ -28,5 +28,8 @@
   },
   "bugs": {
     "url": "https://github.com/wittefeng/juan-cli/issues"
+  },
+  "dependencies": {
+    "ora": "5.4.1"
   }
 }
