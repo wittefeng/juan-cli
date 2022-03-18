@@ -125,78 +125,101 @@ class InitCommand extends Command {
         }
       ]
     })
-    log.verbose('type', type)
     if (type === TYPE_PROJECT) {
-      const projectNamePrompt = {
+      this.typeName = '项目'
+    }
+    if (type === TYPE_COMPONENT) {
+      this.typeName = '组件'
+    }
+    log.verbose('type', type)
+    this.template = this.template.filter((template) =>
+      template.tag.includes(type)
+    )
+    const projectNamePrompt = {
+      type: 'input',
+      name: 'projectName',
+      message: `请输入${this.typeName}名称`,
+      default: '',
+      validate: function (v) {
+        var done = this.async()
+
+        // 1. 首字符必须为英文字符
+        // 2. 尾字符必须为英文或数字，不能为字符
+        // 3. 字符仅允许"-_"
+        // 合法： a, a-b, a_b, a-b-c, a_b_c, a-b1-c1, a_b1_c1
+        // 不合法：1, a_, a-
+        setTimeout(function () {
+          if (isValidName(v)) {
+            done(`请输入合法的${this.typeName}名称`)
+            return
+          }
+          done(null, true)
+        }, 0)
+      },
+      filter: function (v) {
+        return v
+      }
+    }
+    const projectPrompt = [
+      {
         type: 'input',
-        name: 'projectName',
-        message: '请输入项目名称',
-        default: '',
+        name: 'projectVersion',
+        message: `请输入${this.typeName}版本号`,
+        default: '1.0.0',
         validate: function (v) {
           var done = this.async()
-
-          // 1. 首字符必须为英文字符
-          // 2. 尾字符必须为英文或数字，不能为字符
-          // 3. 字符仅允许"-_"
-          // 合法： a, a-b, a_b, a-b-c, a_b_c, a-b1-c1, a_b1_c1
-          // 不合法：1, a_, a-
           setTimeout(function () {
-            if (isValidName(v)) {
-              done('请输入合法的项目名称')
+            if (!!!semver.valid(v)) {
+              done(`请输入合法的${this.typeName}名版本号`)
               return
             }
             done(null, true)
           }, 0)
         },
         filter: function (v) {
-          return v
-        }
-      }
-      const projectPrompt = [
-        {
-          type: 'input',
-          name: 'projectVersion',
-          message: '请输入项目版本号',
-          default: '1.0.0',
-          validate: function (v) {
-            var done = this.async()
-            setTimeout(function () {
-              if (!!!semver.valid(v)) {
-                done('请输入合法的项目名版本号')
-                return
-              }
-              done(null, true)
-            }, 0)
-          },
-          filter: function (v) {
-            if (!!semver.valid(v)) {
-              return semver.valid(v)
-            } else {
-              return v
-            }
+          if (!!semver.valid(v)) {
+            return semver.valid(v)
+          } else {
+            return v
           }
-        },
-        {
-          type: 'list',
-          name: 'projectTemplate',
-          message: '请选择项目模版',
-          choices: this.createTemplate()
         }
-      ]
-      if (!isProjectNameValid) {
-        log.info('名称不合法，请重新输入项目名称！')
-        projectPrompt.unshift(projectNamePrompt)
+      },
+      {
+        type: 'list',
+        name: 'projectTemplate',
+        message: `请选择${this.typeName}模版`,
+        choices: this.createTemplate()
       }
+    ]
+    if (!isProjectNameValid) {
+      log.info(`名称不合法，请重新输入${this.typeName}名称！`)
+      projectPrompt.unshift(projectNamePrompt)
+    }
 
-      // 2. 获取项目的基本信息
-      const project = await inquirer.prompt(projectPrompt)
-      projectInfo = {
-        ...projectInfo,
-        type,
-        ...project
-      }
-    } else if (type === TYPE_COMPONENT) {
+    if (type === TYPE_COMPONENT) {
       // 2. 获取组件的基本信息
+      const descriptionPrompt = {
+        type: 'input',
+        name: 'componentDescription',
+        message: '请输入组件描述信息',
+        default: '',
+        validate: function (v) {
+          var done = this.async()
+          if (!v) {
+            done('请输入组件描述信息！！！')
+            return
+          }
+          done(null, true)
+        }
+      }
+      projectPrompt.push(descriptionPrompt)
+    }
+    // 2. 获取项目的基本信息
+    const project = await inquirer.prompt(projectPrompt)
+    projectInfo = {
+      ...projectInfo,
+      type,
+      ...project
     }
     // return 项目的基本信息(object)
     // 生成className 驼峰命名改为-形式
@@ -288,10 +311,10 @@ class InitCommand extends Command {
         // 自定义安装
         await this.installCustomTemplate()
       } else {
-        throw new Error('无法识别项目模版类型！')
+        throw new Error(`无法识别${this.typeName}模版类型！`)
       }
     } else {
-      throw new Error('项目模版信息不存在')
+      throw new Error(`${this.typeName}模版信息不存在`)
     }
   }
 
@@ -313,7 +336,15 @@ class InitCommand extends Command {
       spinner.warn(error)
     }
     // 写在外面，为了日志能打印出来
-    const ignore = ['node_modules/**', 'public/index.html']
+    const templateIgnore = this.templateInfo.ignore || []
+    const ignore = [
+      ...templateIgnore,
+      'public/index.html',
+      '**/node_modules/**',
+      '*.png',
+      '*.jpg',
+      '*.gif'
+    ]
     await this.ejsRender({ ignore })
     // 依赖安装
     const { installCommand, startCommand } = this.templateInfo
@@ -380,11 +411,11 @@ class InitCommand extends Command {
                   filePath,
                   {
                     ...this.projectInfo,
-                    version: this.projectInfo.projectVersion
+                    version: this.projectInfo.projectVersion,
+                    description: this.projectInfo.componentDescription
                   },
                   {},
                   (err, result) => {
-                    console.log(err, result)
                     if (err) {
                       reject1(err)
                     } else {
