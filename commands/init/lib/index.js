@@ -6,6 +6,7 @@ const inquirer = require('inquirer')
 const fsExtra = require('fs-extra')
 const semver = require('semver')
 const userHome = require('user-home')
+const ejs = require('ejs')
 const log = require('@juan-cli/log')
 const Command = require('@juan-cli/command')
 const getProjectTemplate = require('./getProjectTemplate')
@@ -41,6 +42,9 @@ class InitCommand extends Command {
       }
     } catch (error) {
       log.error(error.message)
+      if (process.env.LOG_LEVEL === 'verbose') {
+        console.log(error)
+      }
     }
   }
 
@@ -182,6 +186,12 @@ class InitCommand extends Command {
       // 2. 获取组件的基本信息
     }
     // return 项目的基本信息(object)
+    // 生成className 驼峰命名改为-形式
+    if (projectInfo.projectName) {
+      projectInfo.className = require('kebab-case')(
+        projectInfo.projectName
+      ).replace(/^-/, '')
+    }
     return projectInfo
   }
 
@@ -289,6 +299,9 @@ class InitCommand extends Command {
     } catch (error) {
       spinner.warn(error)
     }
+    // 写在外面，为了日志能打印出来
+    const ignore = ['node_modules/**', 'public/index.html']
+    await this.ejsRender({ ignore })
     // 依赖安装
     const { installCommand, startCommand } = this.templateInfo
     spinner.info('开始安装依赖')
@@ -330,6 +343,51 @@ class InitCommand extends Command {
     } else {
       return null
     }
+  }
+
+  async ejsRender(options) {
+    const dir = process.cwd()
+    return new Promise((resolve, reject) => {
+      require('glob')(
+        '**',
+        {
+          cwd: dir,
+          ignore: options.ignore || '',
+          nodir: true
+        },
+        (err, files) => {
+          if (err) {
+            reject(err)
+          }
+          Promise.all(
+            files.map((file) => {
+              const filePath = path.join(dir, file)
+              return new Promise((resolve1, reject1) => {
+                ejs.renderFile(
+                  filePath,
+                  {
+                    ...this.projectInfo,
+                    version: this.projectInfo.projectVersion
+                  },
+                  {},
+                  (err, result) => {
+                    console.log(err, result)
+                    if (err) {
+                      reject1(err)
+                    } else {
+                      fsExtra.writeFileSync(filePath, result)
+                      resolve1(result)
+                    }
+                  }
+                )
+              })
+            })
+          )
+            .then(() => resolve())
+            .catch((err) => reject(err))
+        }
+      )
+    })
   }
 }
 

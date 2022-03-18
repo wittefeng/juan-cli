@@ -106,9 +106,11 @@ class Package {
           }
         ]
       })
+      // 这样写是为了npminstall失败 不走下面代码
+      this.packageVersion = latestPackageVersion
     } else {
+      this.packageVersion = latestPackageVersion
     }
-    this.packageVersion = latestPackageVersion
   }
 
   // 获取入口文件路径
