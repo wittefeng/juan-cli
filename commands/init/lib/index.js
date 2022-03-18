@@ -97,7 +97,17 @@ class InitCommand extends Command {
   }
 
   async getProjectInfo() {
+    function isValidName(v) {
+      return !/^[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(
+        v
+      )
+    }
     let projectInfo = {}
+    let isProjectNameValid = false
+    if (!isValidName(this.projectName)) {
+      isProjectNameValid = true
+      projectInfo.projectName = this.projectName
+    }
     // 1. 选择创建项目或组件
     const { type } = await inquirer.prompt({
       type: 'list',
@@ -117,37 +127,32 @@ class InitCommand extends Command {
     })
     log.verbose('type', type)
     if (type === TYPE_PROJECT) {
-      // 2. 获取项目的基本信息
-      const project = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'projectName',
-          message: '请输入项目名称',
-          default: '',
-          validate: function (v) {
-            var done = this.async()
+      const projectNamePrompt = {
+        type: 'input',
+        name: 'projectName',
+        message: '请输入项目名称',
+        default: '',
+        validate: function (v) {
+          var done = this.async()
 
-            // 1. 首字符必须为英文字符
-            // 2. 尾字符必须为英文或数字，不能为字符
-            // 3. 字符仅允许"-_"
-            // 合法： a, a-b, a_b, a-b-c, a_b_c, a-b1-c1, a_b1_c1
-            // 不合法：1, a_, a-
-            setTimeout(function () {
-              if (
-                !/^[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(
-                  v
-                )
-              ) {
-                done('请输入合法的项目名称')
-                return
-              }
-              done(null, true)
-            }, 0)
-          },
-          filter: function (v) {
-            return v
-          }
+          // 1. 首字符必须为英文字符
+          // 2. 尾字符必须为英文或数字，不能为字符
+          // 3. 字符仅允许"-_"
+          // 合法： a, a-b, a_b, a-b-c, a_b_c, a-b1-c1, a_b1_c1
+          // 不合法：1, a_, a-
+          setTimeout(function () {
+            if (isValidName(v)) {
+              done('请输入合法的项目名称')
+              return
+            }
+            done(null, true)
+          }, 0)
         },
+        filter: function (v) {
+          return v
+        }
+      }
+      const projectPrompt = [
         {
           type: 'input',
           name: 'projectVersion',
@@ -177,8 +182,16 @@ class InitCommand extends Command {
           message: '请选择项目模版',
           choices: this.createTemplate()
         }
-      ])
+      ]
+      if (!isProjectNameValid) {
+        log.info('名称不合法，请重新输入项目名称！')
+        projectPrompt.unshift(projectNamePrompt)
+      }
+
+      // 2. 获取项目的基本信息
+      const project = await inquirer.prompt(projectPrompt)
       projectInfo = {
+        ...projectInfo,
         type,
         ...project
       }
