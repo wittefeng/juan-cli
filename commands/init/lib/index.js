@@ -11,10 +11,15 @@ const Command = require('@juan-cli/command')
 const getProjectTemplate = require('./getProjectTemplate')
 const Package = require('@juan-cli/package')
 
-const { spinnerStart, sleep } = require('@juan-cli/utils')
+const { spinnerStart, sleep, execAsync } = require('@juan-cli/utils')
 
 const TYPE_PROJECT = 'project'
 const TYPE_COMPONENT = 'component'
+
+const TYPE_TEMPLATE_NORMAL = 'normal'
+const TYPE_TEMPLATE_CUSTOM = 'custom'
+
+const WHITE_COMMAND = ['npm', 'cnpm']
 class InitCommand extends Command {
   init() {
     this.projectName = this._argv[0] || ''
@@ -32,6 +37,7 @@ class InitCommand extends Command {
         this.projectInfo = projectInfo
         await this.downloadTemplate()
         // 3. 安装模版
+        await this.installTemplate()
       }
     } catch (error) {
       log.error(error.message)
@@ -78,6 +84,8 @@ class InitCommand extends Command {
         if (confirmDelete) {
           // 清空当前目录
           fsExtra.emptyDirSync(localPath)
+        } else {
+          return
         }
       }
     }
@@ -202,7 +210,7 @@ class InitCommand extends Command {
     // 1.3 将项目模版信息存储到mongodb数据库中
     // 1.4 通过egg.js获取mongodb中的数据并且通过API返回
     const { projectTemplate } = this.projectInfo
-    const { npmName, version } = this.template.find(
+    const templateInfo = this.template.find(
       (item) => item.npmName === projectTemplate
     )
     const targetPath = path.resolve(userHome, '.juan-cli', 'template')
@@ -215,31 +223,112 @@ class InitCommand extends Command {
     const templateNpm = new Package({
       targetPath,
       storePath,
-      packageName: npmName,
-      packageVersion: version
+      packageName: templateInfo.npmName,
+      packageVersion: templateInfo.version
     })
     if (!(await templateNpm.exists())) {
       const spinner = spinnerStart('正在下载模版...')
       await sleep()
       try {
         await templateNpm.install()
-        log.success('下载模版成功')
+        spinner.succeed('下载模版成功')
+        this.templateNpm = templateNpm
       } catch (error) {
-        throw error
-      } finally {
-        spinner.stop()
+        spinner.warn(error)
+        return
       }
     } else {
       const spinner = spinnerStart('正在更新模版...')
       await sleep()
       try {
         await templateNpm.update()
-        log.success('更新模版成功')
+        spinner.succeed('更新模版成功')
+        this.templateNpm = templateNpm
       } catch (error) {
-        throw error
-      } finally {
-        spinner.stop()
+        spinner.warn(error)
+        return
       }
+    }
+    this.templateInfo = templateInfo
+  }
+
+  // 3. 安装模版
+  async installTemplate() {
+    if (this.templateInfo) {
+      if (!this.templateInfo.type) {
+        this.templateInfo.type = TYPE_TEMPLATE_NORMAL
+      }
+      if (this.templateInfo.type === TYPE_TEMPLATE_NORMAL) {
+        // 标准安装
+        await this.installNormalTemplate()
+      } else if (this.templateInfo.type === TYPE_TEMPLATE_CUSTOM) {
+        // 自定义安装
+        await this.installCustomTemplate()
+      } else {
+        throw new Error('无法识别项目模版类型！')
+      }
+    } else {
+      throw new Error('项目模版信息不存在')
+    }
+  }
+
+  async installNormalTemplate() {
+    log.verbose('templateInfo', this.templateInfo)
+    const spinner = spinnerStart('正在安装模版...')
+    // 拷贝模版代码至当前目录
+    try {
+      const templatePath = path.resolve(
+        this.templateNpm.cacheFilePath,
+        'template'
+      )
+      const targetPath = process.cwd()
+      fsExtra.ensureDirSync(templatePath)
+      fsExtra.ensureDirSync(targetPath)
+      fsExtra.copySync(templatePath, targetPath)
+      spinner.succeed('安装模版成功')
+    } catch (error) {
+      spinner.warn(error)
+    }
+    // 依赖安装
+    const { installCommand, startCommand } = this.templateInfo
+    spinner.info('开始安装依赖')
+    let installRet = await this.execCommand(installCommand)
+    log.verbose('installRet', installRet)
+    if (installRet !== 0) {
+      spinner.warn('依赖在安装过程中失败！')
+    } else {
+      spinner.succeed('依赖安装完成,准备启动项目')
+    }
+    // 启动命令执行
+    await this.execCommand(startCommand)
+    if (installRet !== 0) {
+      spinner.warn('项目启动失败！')
+    }
+  }
+  async installCustomTemplate() {
+    console.log('自定义模版')
+  }
+  async execCommand(command) {
+    let ret
+    if (command) {
+      const commandArray = command.split(' ')
+      const cmd = this.checkCommand(commandArray[0])
+      if (!cmd) {
+        throw new Error(`命令：${commandArray[0]} 不存在`)
+      }
+      const args = commandArray.slice(1)
+      ret = await execAsync(cmd, args, {
+        stdio: 'inherit',
+        cmd: process.cwd()
+      })
+    }
+    return ret
+  }
+  checkCommand(cmd) {
+    if (WHITE_COMMAND.includes(cmd)) {
+      return cmd
+    } else {
+      return null
     }
   }
 }

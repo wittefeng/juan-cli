@@ -1,10 +1,9 @@
 'use strict'
 
 const path = require('path')
-const cp = require('child_process')
 const Package = require('@juan-cli/package')
 const log = require('@juan-cli/log')
-const { stringify } = require('querystring')
+const { exec: spawn } = require('@juan-cli/utils')
 
 const SETTING = {
   init: '@juan-cli/init'
@@ -92,13 +91,6 @@ async function exec() {
       log.error(error)
     }
   }
-}
-
-function spawn(command, args, options) {
-  const win32 = process.platform === 'win32'
-  const cmd = win32 ? 'cmd' : command
-  const cmdArgs = win32 ? ['/c'].concat(command, args) : args
-  return cp.spawn(cmd, cmdArgs, options || {})
 }
 
 module.exports = exec
