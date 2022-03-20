@@ -1,6 +1,6 @@
 {
   "name": "@juan-cli/get-npm-info",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1",
   "description": "get npm package info",
   "keywords": [
     "get",

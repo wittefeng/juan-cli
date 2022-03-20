@@ -1,6 +1,6 @@
 {
   "name": "@juan-cli/exec",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1",
   "description": "juan-cli execute package",
   "keywords": [
     "exec"
@@ -30,8 +30,8 @@
     "url": "https://github.com/wittefeng/juan-cli/issues"
   },
   "dependencies": {
-    "@juan-cli/log": "^0.0.1-alpha.0",
-    "@juan-cli/package": "^0.0.1-alpha.0",
-    "@juan-cli/utils": "^0.0.1-alpha.0"
+    "@juan-cli/log": "^0.0.1",
+    "@juan-cli/package": "^0.0.1",
+    "@juan-cli/utils": "^0.0.1"
   }
 }

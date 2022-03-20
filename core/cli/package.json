@@ -1,6 +1,6 @@
 {
   "name": "@juan-cli/cli",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1",
   "description": "juan-cli cli",
   "keywords": [
     "juan",
@@ -28,10 +28,10 @@
   },
   "gitHead": "3e4de0f0e9d0cc71429380e6d9f8721b9df37b7c",
   "dependencies": {
-    "@juan-cli/exec": "^0.0.1-alpha.0",
-    "@juan-cli/get-npm-info": "^0.0.1-alpha.0",
-    "@juan-cli/init": "^0.0.1-alpha.0",
-    "@juan-cli/log": "^0.0.1-alpha.0",
+    "@juan-cli/exec": "^0.0.1",
+    "@juan-cli/get-npm-info": "^0.0.1",
+    "@juan-cli/init": "^0.0.1",
+    "@juan-cli/log": "^0.0.1",
     "colors": "^1.4.0",
     "commander": "^9.0.0",
     "dotenv": "^16.0.0",

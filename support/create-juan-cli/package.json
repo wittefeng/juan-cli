@@ -1,6 +1,6 @@
 {
   "name": "create-juan-cli",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1",
   "description": "juan-cli-init, so you could use `npm init juan-cli showcase`.",
   "author": "wittefeng <wittefeng@gmail.com>",
   "homepage": "https://github.com/wittefeng/juan-cli#readme",
@@ -23,6 +23,6 @@
     "url": "https://github.com/wittefeng/juan-cli/issues"
   },
   "dependencies": {
-    "@juan-cli/cli": "^0.0.1-alpha.0"
+    "@juan-cli/cli": "^0.0.1"
   }
 }

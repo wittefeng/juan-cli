@@ -1,6 +1,6 @@
 {
   "name": "@juan-cli/format-path",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1",
   "description": "format path",
   "author": "wittefeng <wittefeng@gmail.com>",
   "homepage": "https://github.com/wittefeng/juan-cli#readme",
